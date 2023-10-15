@@ -1,0 +1,3 @@
+[submodule "custom_clevr"]
+	path = custom_clevr
+	url = git@github.com:mary-martin/custom_clevr.git
