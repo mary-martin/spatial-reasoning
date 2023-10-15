@@ -1,3 +1,6 @@
 [submodule "custom_clevr"]
 	path = custom_clevr
 	url = git@github.com:mary-martin/custom_clevr.git
+[submodule "amr-parsing"]
+	path = amr-parsing
+	url = git@github.com:mary-martin/amr-parsing.git
