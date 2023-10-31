@@ -2,10 +2,13 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from compare_points import Location_Offsets
 
+# Define a class to represent Scene Objects
 
 class Scene_Objects(object):
     
+    # Define a class to represent Scene Objects
     def __init__(self, obj_dict):
+    # Initialize the object with data from the provided dictionary
         
         # scene specfic data
         self.obj_dict = obj_dict
@@ -26,6 +29,7 @@ class Scene_Objects(object):
         self.scene_relations = self.get_combined_relations()
     
     def collect_objects(self):
+        # Create Entity objects from the provided object data
         all_objects = []
         
         for i, entity in enumerate(self.objects): 
@@ -35,6 +39,7 @@ class Scene_Objects(object):
         return all_objects
             
     def show_2d_graph(self, plot=True):
+        # Create and display a 2D graph to visualize object relationships
         G = nx.DiGraph()
         
         for i in range(self.num_objects):
@@ -61,6 +66,7 @@ class Scene_Objects(object):
             plt.show()
         
     def get_object_offsets(self):
+        # Calculate object offsets and store related data
         self.all_locations = []
         self.all_labels = []
         self.all_colors = []
@@ -75,7 +81,8 @@ class Scene_Objects(object):
         return Location_Offsets(self.camera_pos, self.all_locations, self.all_labels)
     
     def plot_points(self):
-        
+        # Create and display a 3D plot to visualize object positions
+
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -103,9 +110,8 @@ class Scene_Objects(object):
         plt.show()
         
     def get_combined_relations(self):
-        """
-        Get the relationships between objects in a CLEVR scene.
-        """
+        # Calculate relationships between objects in the scene
+
         scene_relations = {}
         entities = self.all_entities
         num_obj = self.num_objects
@@ -126,6 +132,8 @@ class Scene_Objects(object):
         return scene_relations
 
     def show_combined_graph(self, plot=True):
+        # Create and display a 2d combined graph to visualize object relationships
+
         G = nx.DiGraph()
         
         for i in self.position_dict.keys():
@@ -146,6 +154,10 @@ class Scene_Objects(object):
             nx.draw_networkx_edge_labels(G, pos=self.position_dict, edge_labels=edge_labels, font_color='red')
 
             plt.show()
+    
+    def get_offset_pair(self, o1_idx, o2_idx): 
+        # Get the offset between two objects
+        return self.obj_offsets.offset_data[(o1_idx, o2_idx)]
 
 class Entity(object):
     
@@ -162,5 +174,5 @@ class Entity(object):
         self.behind = self.relations['behind']
         self.left = self.relations['left']
         self.right = self.relations['right']
-        self.diagonal = self.add_diagonal()
+
         

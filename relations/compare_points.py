@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from collections import defaultdict
 
 class Location_Offsets(object):
     
@@ -9,7 +10,14 @@ class Location_Offsets(object):
         self.obj_positions = obj_positions
         self.obj_labels = obj_labels
         self.offset_data = self.compare_all_points()
-        self.show_data_range()
+        # self.show_data_range()
+        
+    def get_obj_offsets(self, idx):
+        offsets_by_obj = {}
+        for x, y in self.offset_data:
+            if x == idx:
+                offsets_by_obj[y] = self.offset_data[(x,y)]
+        return offsets_by_obj
 
     def compare_all_points(self):
         
@@ -60,12 +68,14 @@ class Location_Offsets(object):
         # Calculate the angle in radians
         theta_radians = np.arccos(cos_theta)
 
-        # Convert the angle to degrees (optional)
+        # Convert the angle to degrees 
         theta_degrees = np.degrees(theta_radians)
 
-        # Calculate the sine and cosine components
+        # Calculate the sine component
         sin_theta = np.sin(theta_radians)
-        cos_theta = np.cos(theta_radians)
+        sin_sign = np.sign(np.cross(V1, V2))
+        # print(sin_sign)
+        # cos_theta = np.cos(theta_radians)
 
         distance = object2_position - object1_position
         direction = np.sign(distance)
@@ -98,7 +108,7 @@ class Location_Offsets(object):
         
         offsets = {'distance': distance, 'direction': direction,'xyz_offsets': xyz_offsets, 'theta_degrees': theta_degrees, 
                    'theta_radians': theta_radians, 'cos_theta':cos_theta, 'sin_theta': sin_theta }
-        print(offsets)
+        # print(offsets)
         return offsets
     
     def show_data_range(self):
