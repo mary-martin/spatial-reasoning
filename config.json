@@ -1,0 +1,195 @@
+{
+    "amr_data_dir": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr",
+    "glove": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/glove/glove.840B.300d.zip",
+    "model": {
+        "model_type": "STOG",
+        "use_must_copy_embedding": true,
+        "use_char_cnn": true,
+        "use_coverage": true,
+        "use_aux_encoder": false,
+        "use_bert": true,
+        "bert": {
+            "pretrained_model_dir": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/bert-base-cased",
+            "hidden_size": 768
+        },
+        "encoder_token_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "encoder_token_ids",
+            "embedding_dim": 300,
+            "padding_index": 0,
+            "dropout": 0.33,
+            "pretrained_file": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/glove/glove.840B.300d.zip"
+        },
+        "encoder_pos_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "pos_tags",
+            "embedding_dim": 100,
+            "padding_index": 0,
+            "dropout": 0
+        },
+        "encoder_must_copy_embedding": {
+            "num_embeddings": 3,
+            "vocab_namespace": "must_copy_tags",
+            "embedding_dim": 50,
+            "padding_index": null,
+            "dropout": 0
+        },
+        "encoder_char_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "encoder_token_characters",
+            "embedding_dim": 100,
+            "padding_index": 0,
+            "dropout": 0,
+            "pretrained_file": null
+        },
+        "encoder_char_cnn": {
+            "embedding_dim": 100,
+            "num_filters": 100,
+            "ngram_filter_sizes": [
+                3
+            ]
+        },
+        "decoder_token_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "decoder_token_ids",
+            "embedding_dim": 300,
+            "padding_index": 0,
+            "dropout": 0.33,
+            "pretrained_file": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/glove/glove.840B.300d.zip",
+            "data_type": "AMR"
+        },
+        "decoder_pos_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "pos_tags",
+            "embedding_dim": 100,
+            "padding_index": 0,
+            "dropout": 0
+        },
+        "decoder_coref_embedding": {
+            "num_embeddings": 500,
+            "embedding_dim": 50,
+            "padding_index": 0,
+            "dropout": 0.33
+        },
+        "decoder_char_embedding": {
+            "num_embeddings": null,
+            "vocab_namespace": "decoder_token_characters",
+            "embedding_dim": 100,
+            "padding_index": 0,
+            "dropout": 0.33,
+            "pretrained_file": null
+        },
+        "decoder_char_cnn": {
+            "embedding_dim": 100,
+            "num_filters": 100,
+            "ngram_filter_sizes": [
+                3
+            ]
+        },
+        "encoder": {
+            "input_size": null,
+            "hidden_size": 512,
+            "num_layers": 2,
+            "use_highway": false,
+            "dropout": 0.33
+        },
+        "decoder": {
+            "input_size": null,
+            "hidden_size": 1024,
+            "num_layers": 2,
+            "use_highway": false,
+            "dropout": 0.33
+        },
+        "source_attention": {
+            "attention_function": "mlp",
+            "coverage": true
+        },
+        "coref_attention": {
+            "attention_function": "mlp",
+            "share_linear": true
+        },
+        "generator": {
+            "input_size": 1024,
+            "vocab_size": null,
+            "pad_idx": null,
+            "force_copy": true
+        },
+        "graph_decoder": {
+            "decode_algorithm": "greedy",
+            "input_size": 1024,
+            "edge_node_hidden_size": 256,
+            "edge_label_hidden_size": 128,
+            "dropout": 0.33
+        },
+        "mimick_test": {
+            "data": "/home/mary/Code/spatial-reasoning/amr-parsing/preprocessed_text/custom_preprocessed.txt",
+            "prediction": "pred.txt",
+            "batch_size": 32,
+            "eval_script": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/scripts/eval_test.sh",
+            "smatch_dir": "tools/amr-evaluation-tool-enhanced",
+            "word_splitter": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/bert-base-cased/bert-base-cased-vocab.txt"
+        }
+    },
+    "vocab": {
+        "non_padded_namespaces": [
+            "must_copy_tags",
+            "coref_tags"
+        ],
+        "min_count": {
+            "encoder_token_ids": 1,
+            "decoder_token_ids": 1
+        },
+        "max_vocab_size": {
+            "encoder_token_ids": 18000,
+            "decoder_token_ids": 12200
+        }
+    },
+    "data": {
+        "data_dir": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr",
+        "train_data": "/home/mary/Code/spatial-reasoning/amr-parsing/preprocessed_text/custom_preprocessed.txt",
+        "dev_data": "/home/mary/Code/spatial-reasoning/amr-parsing/preprocessed_text/custom_preprocessed.txt",
+        "test_data": "/home/mary/Code/spatial-reasoning/amr-parsing/preprocessed_text/custom_preprocessed.txt",
+        "data_type": "AMR",
+        "batch_first": true,
+        "iterator": {
+            "train_batch_size": 64,
+            "test_batch_size": 32,
+            "iter_type": "BucketIterator",
+            "sorting_keys": [
+                [
+                    "tgt_tokens",
+                    "num_tokens"
+                ]
+            ]
+        },
+        "pretrain_token_emb": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/glove/glove.840B.300d.zip",
+        "pretrain_char_emb": null,
+        "word_splitter": "/home/mary/Code/spatial-reasoning/amr-parsing/stog/amr/bert-base-cased/bert-base-cased-vocab.txt"
+    },
+    "environment": {
+        "recover": false,
+        "seed": 1,
+        "numpy_seed": 1,
+        "torch_seed": 1,
+        "serialization_dir": "/home/mary/Code/spatial-reasoning/amr-parsing/ckpt-amr-2.0",
+        "file_friendly_logging": false,
+        "gpu": true,
+        "cuda_device": 0
+    },
+    "trainer": {
+        "device": null,
+        "no_grad": [],
+        "optimizer_type": "adam",
+        "learning_rate": 0.001,
+        "max_grad_norm": 5.0,
+        "batch_size": 64,
+        "shuffle": true,
+        "epochs": 120,
+        "dev_metric": "+F1",
+        "serialization_dir": "/home/mary/Code/spatial-reasoning/amr-parsing/ckpt-amr-2.0",
+        "model_save_interval": null
+    },
+    "test": {
+        "evaluate_on_test": true
+    }
+}

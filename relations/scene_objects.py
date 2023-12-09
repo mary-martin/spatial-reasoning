@@ -6,7 +6,6 @@ from compare_points import Location_Offsets
 
 class Scene_Objects(object):
     
-    # Define a class to represent Scene Objects
     def __init__(self, obj_dict):
     # Initialize the object with data from the provided dictionary
         
@@ -99,7 +98,7 @@ class Scene_Objects(object):
             else:
                 color = self.all_colors[j]
             j+=1
-            ax.scatter(obj[0], obj[1], obj[2], c=color, marker='s', label=label)
+            ax.scatter(obj[0], obj[1], 0, c=color, marker='s', label=label)
 
         # Set labels for the axes
         ax.set_xlabel('X')
