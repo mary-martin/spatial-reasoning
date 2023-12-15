@@ -1,0 +1,31 @@
+[
+    {
+      "sentence": "The object to the left of the sphere and behind the brown objects",
+      "mentions": {
+        "objects": [
+          {"label": "object", "type": "target"},
+          {"label": "sphere", "type": "lm"},
+          {"label": "object", "color": "brown", "type": "lm_set"}
+        ],
+        "relations": [
+          {"o1": 1, "o2": 2, "label": "left"},
+          {"o1": 1, "o2": 3, "label": "behind"}
+        ]
+      }
+    },
+    {
+      "sentence": "Another sentence with different objects and relations",
+      "mentions": {
+        "objects": [
+          {"label": "item", "type": "target"},
+          {"label": "box", "type": "lm"},
+          {"label": "object", "color": "blue", "type": "lm_set"}
+        ],
+        "relations": [
+          {"o1": 1, "o2": 2, "label": "right"},
+          {"o1": 1, "o2": 3, "label": "in front of"}
+        ]
+      }
+    }
+  ]
+  
