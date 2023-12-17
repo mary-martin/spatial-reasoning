@@ -87,6 +87,8 @@ class SpatialPredictor(object):
         """
         self.grounded = self.initial_grounding(mentions)
         true_groundings = self.grounded.keys()
+        self.true_nodes = reduce(set.union, (set(lst) for lst in self.grounded.values()))
+        print(self.true_nodes)
         relations = mentions["relations"]
         self.candidates = self.grounded
 
@@ -179,7 +181,7 @@ class SpatialPredictor(object):
             dim = relation_direction[0]
             sign = relation_direction[1]
             direction = offset["direction"]
-            if direction[dim] == sign:
+            if direction[dim] == sign and paired_obj not in self.true_nodes:
                 if paired_obj not in self.candidate_graph.nodes():
                     self.candidate_graph.add_node(paired_obj)
                 score = self.score_relations(offset, dim)
@@ -192,34 +194,17 @@ class SpatialPredictor(object):
         return matched_objs, matched
 
     # Function to score spatial relations based on distance and ratio
-    def score_relations(self, offset, dim, dist_scaling=-1, ratio_scaling=-1):
-        """
-        Score spatial relations based on distance and ratio.
+    def score_relations(self, offset, dim, dist_scaling=-1, ratio_scaling=1):
 
-        Parameters:
-        - offset (dict): Offset information between two objects.
-        - dim (int): Dimension along which the relation is evaluated.
-        - dist_scaling (float): Scaling factor for distance in the score calculation.
-        - ratio_scaling (float): Scaling factor for ratio in the score calculation.
-
-        Returns:
-        - float: Score of the spatial relation.
-        """
-        compared_direction = 0
-
-        if dim == compared_direction:
-            compared_direction = 1
-
-        xyz_offsets = offset["xyz_offsets"]
-        direction_distance = abs(xyz_offsets[dim])
-        total_distance = np.linalg.norm(np.array(xyz_offsets))
-        other_dir = xyz_offsets[compared_direction]
-        ratio_offset = direction_distance / abs(other_dir)
+        xyz_offsets = abs(np.array(offset["xyz_offsets"]))
+        xy_offsets = [xyz_offsets[0], xyz_offsets[1]]
+        # direction_distance = xyz_offsets[dim]
+        magnitude, vec_norm = self.calculate_norm(xy_offsets)
+        norm_offset = vec_norm[dim]
 
         score = (
-            dist_scaling * total_distance
-            + ratio_scaling * ratio_offset
-            + dist_scaling * direction_distance
+            dist_scaling * magnitude
+            + ratio_scaling * norm_offset
         )
 
         return score
@@ -293,8 +278,10 @@ class SpatialPredictor(object):
 
         return mid_distance
 
-    def calculate_percentages(self, vector):
-        x, y = vector
-        p_x = (1 - y) / x
-        p_y = 1 - p_x
-        return p_x, p_y
+    def calculate_norm(self, vector):
+        # Calculate the L2 norm (magnitude) of the vector
+        magnitude = np.linalg.norm(vector)
+        # Normalize the vector
+        normalized_vector = vector / magnitude
+        
+        return magnitude, normalized_vector
