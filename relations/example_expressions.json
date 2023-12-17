@@ -3,9 +3,9 @@
       "sentence": "The object to the left of the sphere and behind the brown objects",
       "mentions": {
         "objects": [
-          {"label": "object", "type": "target"},
-          {"label": "sphere", "type": "lm"},
-          {"label": "object", "color": "brown", "type": "lm_set"}
+          {"id": 1, "label": "object", "type": "target"},
+          {"id": 2, "label": "sphere", "type": "lm"},
+          {"id": 3, "label": "object", "color": "brown", "type": "lm_set"}
         ],
         "relations": [
           {"o1": 1, "o2": 2, "label": "left"},
@@ -14,16 +14,29 @@
       }
     },
     {
-      "sentence": "Another sentence with different objects and relations",
+      "sentence": "The object between the gray cube and the sphere",
       "mentions": {
         "objects": [
-          {"label": "item", "type": "target"},
-          {"label": "box", "type": "lm"},
-          {"label": "object", "color": "blue", "type": "lm_set"}
+          {"id": 1, "label": "object", "type": "target"},
+          {"id": 2, "label": "cube", "color":"gray", "type": "lm"},
+          {"id": 3, "label": "sphere", "type":"lm" }
+        ],
+        "relations": [
+          {"o1": 1, "o2": 2, "o3": 3, "label": "between"}
+        ]
+      }
+    },
+    {
+      "sentence": "The object that is to the right of the object that is in front of the gray cube",
+      "mentions": {
+        "objects": [
+          {"id": 1, "label": "object", "type": "target"},
+          {"id": 2, "label": "object", "type": "lm"},
+          {"id": 3, "label": "cube", "color":"gray", "type": "lm"}
         ],
         "relations": [
           {"o1": 1, "o2": 2, "label": "right"},
-          {"o1": 1, "o2": 3, "label": "in front of"}
+          {"o1": 2, "o2": 3, "label":"front"}
         ]
       }
     }

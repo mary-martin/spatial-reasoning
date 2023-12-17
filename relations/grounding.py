@@ -5,6 +5,7 @@ from collections import defaultdict
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from functools import reduce
 
 
 class SpatialPredictor(object):
@@ -55,22 +56,22 @@ class SpatialPredictor(object):
                 # Check if the object mention matches entity features
                 if mention_label != "object" and color:
                     if mention_label in features and color in features:
-                        grounded[i + 1].append(entity)
+                        grounded[i + 1].append(entity.idx)
                         self.candidate_graph.add_node(entity.idx)
                         found = True
                 elif mention_label in features:
-                    grounded[i + 1].append(entity)
+                    grounded[i + 1].append(entity.idx)
                     self.candidate_graph.add_node(entity.idx)
                     found = True
                 elif color in features:
-                    grounded[i + 1].append(entity)
+                    grounded[i + 1].append(entity.idx)
                     self.candidate_graph.add_node(entity.idx)
                     found = True
 
             if not found:
                 ungrounded.append(i + 1)
 
-        return dict(grounded)
+        return grounded
 
     def relate(self, mentions):
         """
@@ -85,82 +86,57 @@ class SpatialPredictor(object):
         - dict: Dictionary containing qualifying pairs of objects based on spatial relations.
         """
         self.grounded = self.initial_grounding(mentions)
+        true_groundings = self.grounded.keys()
         relations = mentions["relations"]
-        self.candidates = defaultdict(list)
-        ug_relations = []
+        self.candidates = self.grounded
+
         #
         # Loop through relations and find candidates for o2 (goal object) in each relation mention
-        for relation in relations:
-            o1 = relation["o1"]
-            o2 = relation["o2"]
-            relation_label = relation["label"]
-
-            if "o3" in relation.keys():
-                if not self.decompose(relation):
-                    ug_relations.append(relation)
-            elif o1 not in self.grounded.keys():
-                # if the start object (o1) is not grounded
-                # and the goal object is grounded, swap o1 and o2
-                if o2 in self.grounded.keys():
-                    o1, o2 = o2, o1
-                    # o1 has one or more entities associated with it (from the scene)
-                    o1_entities = self.grounded[o1]
-                    # loop through the entities associated with o1
-                    for obj in o1_entities:
-                        inverse_label = self.inverse_relations[relation_label]
-                        candidate_obj = self.evaluate_pairs(obj.idx, inverse_label)
-                        self.candidates[o2].append(candidate_obj)
-                else:
-                    # If both objects are ungrounded
-                    ug_relations.append(relation)
-            else:
-                # this is the standard case where o1 is grounded
-                o1_entities = self.grounded[o1]
-                for obj in o1_entities:
-                    candidate_obj = self.evaluate_pairs(obj.idx, relation_label)
-                    self.candidates[o2].append(candidate_obj)
-
-        # Handle ungrounded relations
-        while ug_relations:
-            new_ug_relations = []
-
-            for relation in ug_relations:
+        while relations:
+            ug_relations = []
+            for relation in relations:
                 o1 = relation["o1"]
                 o2 = relation["o2"]
                 relation_label = relation["label"]
-
+                o1_exists = o1 in self.candidates.keys()
+                o2_exists = o2 in self.candidates.keys()
+                
                 if "o3" in relation.keys():
                     if not self.decompose(relation):
-                        new_ug_relations.append(relation)
-                print(self.candidates)
-                if o1 not in self.candidates.keys():
-                    if o2 in self.candidates.keys():
-                        # One of the objects is grounded now, add candidates
+                        ug_relations.append(relation)
+                elif not o1_exists or o2 in true_groundings:
+                    # if the start object (o1) is not grounded
+                    # and the goal object is grounded, swap o1 and o2
+                    if o2_exists:
                         o1, o2 = o2, o1
-                        # o1_entities = grounded[o1]
-                        # print(candidates[o1])
-                        for candidate_set in self.candidates[o1]:
-                            for obj in candidate_set.keys():
-                                score = candidate_set[obj]["score"]
-                                inverse_label = self.inverse_relations[relation_label]
-                                self.candidates[o2].append(
-                                    self.evaluate_pairs(obj, inverse_label)
-                                )
+                        relation_label = self.inverse_relations[relation_label]
+                        self.match_candidates(o1, o2, relation_label)
                     else:
-                        # Both objects are still ungrounded, keep in the list for the next iteration
-                        new_ug_relations.append(relation)
+                        # If both objects are ungrounded
+                        ug_relations.append(relation)
                 else:
-                    o1_entities = self.candidates[o1]
-                    for candidate_set in o1_entities:
-                        for obj in candidate_set.keys():
-                            score = candidate_set[obj]["score"]
-                            self.candidates[o2].append(
-                                self.evaluate_pairs(obj, relation_label)
-                            )
+                    self.match_candidates(o1, o2, relation_label)
 
-            ug_relations = new_ug_relations
+            relations = ug_relations
+            # print(self.grounded)
+            print(ug_relations)
+            print(self.candidates)
 
         return ug_relations, self.candidate_graph
+    
+    def match_candidates(self, o1, o2, relation_label):
+        o1_entities = self.candidates[o1]
+        for obj in o1_entities:
+            candidate_obj, matched = self.evaluate_pairs(
+                obj, relation_label
+            )
+            if matched:
+                self.candidates[o2] = list(
+                    reduce(
+                        set.union,
+                        map(set, [self.candidates[o2], candidate_obj])
+                    )
+                )
 
     def clear_graph(self):
         self.candidate_graph.clear()
@@ -169,12 +145,15 @@ class SpatialPredictor(object):
         pos = nx.nx_agraph.graphviz_layout(
             self.candidate_graph, prog="dot", args="-Grankdir=TB"
         )
-        print(self.candidate_graph.edges(data=True))
         edge_weights = {
-            (node1, node2): round(attributes.get("weight", ""), 4) for node1, node2, attributes in self.candidate_graph.edges(data=True)
+            (node1, node2): round(attributes.get("weight", ""), 4)
+            for node1, node2, attributes in self.candidate_graph.edges(data=True)
         }
         nx.draw(self.candidate_graph, pos, with_labels=True, font_weight="bold")
-        nx.draw_networkx_edge_labels(self.candidate_graph, pos, edge_labels=edge_weights)
+        nx.draw_networkx_edge_labels(
+            self.candidate_graph, pos, edge_labels=edge_weights
+        )
+        node_in_degrees = self.candidate_graph.in_degree()
         plt.show()
 
     # Function to evaluate pairs of objects based on a spatial relation
@@ -192,9 +171,9 @@ class SpatialPredictor(object):
         """
         scene_obj_idx = object1
         relation_direction = self.relation_constraints[relation_label]
-        # print(relation_direction)
         obj_specific_pairs = self.offsets.get_obj_offsets(scene_obj_idx)
-        matched_objs = {}
+        matched_objs = []
+        matched = False
 
         for paired_obj, offset in obj_specific_pairs.items():
             dim = relation_direction[0]
@@ -206,9 +185,11 @@ class SpatialPredictor(object):
                 score = self.score_relations(offset, dim)
                 self.candidate_graph.add_edge(scene_obj_idx, paired_obj, weight=score)
                 # offset['score'] = score
-                matched_objs[paired_obj] = {"score": score, "parent": scene_obj_idx}
+                matched_objs.append(paired_obj)
+                if not matched:
+                    matched = True
 
-        return matched_objs
+        return matched_objs, matched
 
     # Function to score spatial relations based on distance and ratio
     def score_relations(self, offset, dim, dist_scaling=-1, ratio_scaling=-1):
@@ -243,6 +224,15 @@ class SpatialPredictor(object):
 
         return score
 
+    def prune_tree(self):
+        G = self.candidate_graph
+        leaf_nodes = [node for node in G.nodes() if len(nx.descendants(G, node)) == 0]
+        node_in_degrees = self.candidate_graph.in_degree()
+
+        # Find the maximum in-degree and the corresponding node
+        max_in_degree_node = max(node_in_degrees, key=node_in_degrees.get)
+        max_in_degree = node_in_degrees[max_in_degree_node]
+
     def decompose(self, relation, weight=-1):
         decomposable = False
         o1 = relation["o1"]
@@ -254,8 +244,8 @@ class SpatialPredictor(object):
 
         if o2 and o3 in self.grounded.keys():
             decomposable = True
-            o2_idx = self.grounded[o2][0].idx
-            o3_idx = self.grounded[o3][0].idx
+            o2_idx = self.grounded[o2][0]
+            o3_idx = self.grounded[o3][0]
             o2_offsets = self.offsets.get_obj_offsets(o2_idx)
             o3_offsets = self.offsets.get_obj_offsets(o3_idx)
             for candidate in o2_offsets.keys():
@@ -275,8 +265,12 @@ class SpatialPredictor(object):
                         print(score)
                         if candidate not in self.candidate_graph.nodes():
                             self.candidate_graph.add_node(candidate)
-                        self.candidate_graph.add_edge(o2_idx, candidate, weight=score/2)
-                        self.candidate_graph.add_edge(o3_idx, candidate, weight=score/2)
+                        self.candidate_graph.add_edge(
+                            o2_idx, candidate, weight=score / 2
+                        )
+                        self.candidate_graph.add_edge(
+                            o3_idx, candidate, weight=score / 2
+                        )
 
         return decomposable
 
@@ -298,3 +292,9 @@ class SpatialPredictor(object):
         mid_distance = np.linalg.norm(p3 - midpoint)
 
         return mid_distance
+
+    def calculate_percentages(self, vector):
+        x, y = vector
+        p_x = (1 - y) / x
+        p_y = 1 - p_x
+        return p_x, p_y
