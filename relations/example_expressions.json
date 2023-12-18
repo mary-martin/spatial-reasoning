@@ -1,44 +1,163 @@
 [
-    {
-      "sentence": "The object to the left of the sphere and behind the brown objects",
-      "mentions": {
-        "objects": [
-          {"id": 1, "label": "object", "type": "target"},
-          {"id": 2, "label": "sphere", "type": "lm"},
-          {"id": 3, "label": "object", "color": "brown", "type": "lm_set"}
-        ],
-        "relations": [
-          {"o1": 1, "o2": 2, "label": "left"},
-          {"o1": 1, "o2": 3, "label": "behind"}
-        ]
-      }
-    },
-    {
-      "sentence": "The object between the gray cube and the sphere",
-      "mentions": {
-        "objects": [
-          {"id": 1, "label": "object", "type": "target"},
-          {"id": 2, "label": "cube", "color":"gray", "type": "lm"},
-          {"id": 3, "label": "sphere", "type":"lm" }
-        ],
-        "relations": [
-          {"o1": 1, "o2": 2, "o3": 3, "label": "between"}
-        ]
-      }
-    },
-    {
-      "sentence": "The object that is to the right of the object that is in front of the gray cube",
-      "mentions": {
-        "objects": [
-          {"id": 1, "label": "object", "type": "target"},
-          {"id": 2, "label": "object", "type": "lm"},
-          {"id": 3, "label": "cube", "color":"gray", "type": "lm"}
-        ],
-        "relations": [
-          {"o1": 1, "o2": 2, "label": "right"},
-          {"o1": 2, "o2": 3, "label":"front"}
-        ]
-      }
+  {
+    "sentence": "The object to the left of the sphere and behind the brown objects",
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "sphere",
+          "type": "lm"
+        },
+        {
+          "id": 3,
+          "label": "object",
+          "color": "brown",
+          "type": "lm_set"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "left"
+        },
+        {
+          "o1": 1,
+          "o2": 3,
+          "label": "behind"
+        }
+      ]
     }
-  ]
-  
+  },
+  {
+    "sentence": "The object between the gray cube and the sphere",
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "cube",
+          "color": "gray",
+          "type": "lm"
+        },
+        {
+          "id": 3,
+          "label": "sphere",
+          "type": "lm"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "o3": 3,
+          "label": "between"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object that is to the right of the object that is in front of the gray cube",
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "object",
+          "type": "lm"
+        },
+        {
+          "id": 3,
+          "label": "cube",
+          "color": "gray",
+          "type": "lm"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "right"
+        },
+        {
+          "o1": 2,
+          "o2": 3,
+          "label": "front"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object behind the gray cube and in front of the green object",
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "cube",
+          "color": "gray",
+          "type": "lm"
+        },
+        {
+          "id": 3,
+          "label": "object",
+          "color": "green",
+          "type": "lm"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "behind"
+        },
+        {
+          "o1": 1,
+          "o2": 3,
+          "label": "front"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object to the left of the sphere.",
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "sphere",
+          "type": "lm"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "left"
+        }
+      ]
+    }
+  }
+]

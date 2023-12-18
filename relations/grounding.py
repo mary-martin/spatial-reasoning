@@ -18,13 +18,13 @@ class SpatialPredictor(object):
             "right": "left",
             "front": "behind",
             "left": "right",
-            "behind": "front"
+            "behind": "front",
         }
         self.relation_constraints = {
             "left": [1, 1],
             "right": [1, -1],
             "front": [0, -1],
-            "behind": [0, 1]
+            "behind": [0, 1],
         }
 
     # Function to perform initial grounding of object mentions in the scene
@@ -69,7 +69,7 @@ class SpatialPredictor(object):
         self.true_nodes = reduce(
             set.union, (set(lst) for lst in self.grounded.values())
         )
-        print(self.true_nodes)
+        # print(self.true_nodes)
         relations = mentions["relations"]
         self.candidates = self.grounded
 
@@ -101,10 +101,9 @@ class SpatialPredictor(object):
 
             relations = ug_relations
             # print(self.grounded)
-            print(ug_relations)
-            print(self.candidates)
+            self.prune_tree()
 
-        return ug_relations, self.candidate_graph
+        return self.candidate_graph
 
     def match_candidates(self, o1, o2, relation_label):
         o1_entities = self.candidates[o1]
@@ -119,6 +118,14 @@ class SpatialPredictor(object):
         self.candidate_graph.clear()
 
     def show_candidate_graph(self):
+        
+        colors = []
+        for obj in self.candidate_graph.nodes():
+            if obj != self.best_node:
+                colors.append('lightblue')
+            else:
+                colors.append('lightgreen')
+                
         pos = nx.nx_agraph.graphviz_layout(
             self.candidate_graph, prog="dot", args="-Grankdir=TB"
         )
@@ -126,7 +133,7 @@ class SpatialPredictor(object):
             (node1, node2): round(attributes.get("weight", ""), 4)
             for node1, node2, attributes in self.candidate_graph.edges(data=True)
         }
-        nx.draw(self.candidate_graph, pos, with_labels=True, font_weight="bold")
+        nx.draw(self.candidate_graph, pos, node_color=colors, with_labels=True, font_weight="bold")
         nx.draw_networkx_edge_labels(
             self.candidate_graph, pos, edge_labels=edge_weights
         )
@@ -149,10 +156,9 @@ class SpatialPredictor(object):
             if direction[dim] == sign and paired_obj not in self.true_nodes:
                 if paired_obj not in self.candidate_graph.nodes():
                     self.candidate_graph.add_node(paired_obj)
-                score = self.score_relations(offset, dim)
+                xyz_offsets = abs(np.array(offset["xyz_offsets"]))
+                score = self.score_relations(xyz_offsets, dim)
                 scores.append(score)
-                # self.candidate_graph.add_edge(scene_obj_idx, paired_obj, weight=score)
-                # offset['score'] = score
                 matched_objs.append(paired_obj)
                 if not matched:
                     matched = True
@@ -164,25 +170,46 @@ class SpatialPredictor(object):
         return matched_objs, matched
 
     # Function to score spatial relations based on distance and ratio
-    def score_relations(self, offset, dim, dist_scaling=-0.05, ratio_scaling=1):
-        xyz_offsets = abs(np.array(offset["xyz_offsets"]))
+    def score_relations(
+        self, xyz_offsets, dim=None, dist_scaling=-0.3, ratio_scaling=1
+    ):
         xy_offsets = [xyz_offsets[0], xyz_offsets[1]]
         # direction_distance = xyz_offsets[dim]
         magnitude, vec_norm = self.calculate_norm(xy_offsets)
-        norm_offset = vec_norm[dim]
-
+        if dim:
+            norm_offset = vec_norm[dim]
+        else:
+            norm_offset = 0
         score = dist_scaling * magnitude + ratio_scaling * norm_offset
 
         return score
 
     def prune_tree(self):
         G = self.candidate_graph
+        predicted_nodes = {}
         leaf_nodes = [node for node in G.nodes() if len(nx.descendants(G, node)) == 0]
-        node_in_degrees = self.candidate_graph.in_degree()
+        
+        # Convert InDegreeView to dictionary
+        node_in_degrees = dict(self.candidate_graph.in_degree())
 
         # Find the maximum in-degree and the corresponding node
         max_in_degree_node = max(node_in_degrees, key=node_in_degrees.get)
         max_in_degree = node_in_degrees[max_in_degree_node]
+
+        for leaf_node in leaf_nodes:
+            if node_in_degrees[leaf_node] == max_in_degree:
+                incoming_edges = G.in_edges(leaf_node, data=True)
+                edge_sum = sum(obj_weight['weight'] for _, _, obj_weight in incoming_edges)
+                predicted_nodes[leaf_node] = edge_sum
+            else:
+                self.candidate_graph.remove_node(leaf_node)
+
+        self.ranked_predictions = sorted(predicted_nodes.items(), key=lambda x: x[1], reverse=True)
+        self.best_object = self.ranked_predictions[0]
+        self.best_node = self.best_object[0]
+        print("Qualifying objects:", self.ranked_predictions)
+        print("Best object:", self.best_object)
+                
 
     def decompose(self, relation, weight=-1):
         decomposable = False
@@ -200,23 +227,24 @@ class SpatialPredictor(object):
             for candidate in set(o2_offsets) & set(o3_offsets):
                 offset1, offset2 = o2_offsets[candidate], o3_offsets[candidate]
                 vector1, vector2 = offset1["direction"], offset2["direction"]
-                target_loc, o2_loc, o3_loc = np.array(self.obj_locations[candidate]), np.array(self.obj_locations[o2]), np.array(self.obj_locations[o3])
+                target_loc, o2_loc, o3_loc = (
+                    np.array(self.obj_locations[candidate]),
+                    np.array(self.obj_locations[o2]),
+                    np.array(self.obj_locations[o3]),
+                )
 
                 angle_eval = self.cos_angle(vector1, vector2)
                 if angle_eval <= 0.0:
-                    midpoint = (vector1 + vector2) / 2
-                    score = weight * self.euclidean_distance(
+                    distance_to_midpoint = self.euclidean_distance(
                         target_loc, o2_loc, o3_loc
                     )
-                    print(score)
+                    score = self.score_relations(distance_to_midpoint)
+
                     if candidate not in self.candidate_graph.nodes():
                         self.candidate_graph.add_node(candidate)
-                    self.candidate_graph.add_edge(
-                        o2_idx, candidate, weight=score / 2
-                    )
-                    self.candidate_graph.add_edge(
-                        o3_idx, candidate, weight=score / 2
-                    )
+                        self.candidates[o1].append(candidate)
+                    self.candidate_graph.add_edge(o2_idx, candidate, weight=score / 2)
+                    self.candidate_graph.add_edge(o3_idx, candidate, weight=score / 2)
 
         return decomposable
 
@@ -235,7 +263,7 @@ class SpatialPredictor(object):
 
     def euclidean_distance(self, p3, p1, p2):
         midpoint = (p1 + p2) / 2
-        mid_distance = np.linalg.norm(p3 - midpoint)
+        mid_distance = p3 - midpoint
 
         return mid_distance
 
