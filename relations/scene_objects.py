@@ -1,6 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from compare_points import Location_Offsets
+import json
+import os
 
 # Define a class to represent Scene Objects
 
@@ -174,4 +176,10 @@ class Entity(object):
         self.left = self.relations['left']
         self.right = self.relations['right']
 
-        
+if __name__ == "__main__":
+    
+    data_dir = "/home/mary/Code/spatial-reasoning/custom_clevr/output/scenes/"
+    scene_file = "CLEVR_train_000001.json"
+    with open(os.path.join(data_dir, scene_file)) as data:
+        scene_data = json.load(data)
+    scene_objects = Scene_Objects(scene_data)

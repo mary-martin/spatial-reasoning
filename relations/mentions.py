@@ -80,7 +80,7 @@ if __name__ == "__main__":
     new_relations = get_relations()
 
     # File path for the JSON file
-    json_file_path = "/home/mary/Code/spatial-reasoning/relations/example_expressions.json"  # Replace with the actual file path
+    json_file_path = "/home/mary/Code/spatial-reasoning/relations/expressions/train_ex_01.json"  # Replace with the actual file path
 
     # Add the new mention to the JSON file
     add_mention(new_objects, new_relations, new_sentence, json_file_path)

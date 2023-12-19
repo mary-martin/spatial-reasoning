@@ -1,0 +1,123 @@
+[
+  {
+    "sentence": "The object behind the brown object.",
+    "true_ranks": [
+      0,
+      7
+    ],
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "object",
+          "type": "lm",
+          "color": "brown"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "behind"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object to the right of the red object.",
+    "true_ranks": [
+      4,
+      0,
+      2,
+      5,
+      6
+    ],
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "object",
+          "type": "lm",
+          "color": "red"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "right"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object in front of the green object.",
+    "true_ranks": [
+      3,
+      2,
+      6,
+      5
+    ],
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "object",
+          "type": "lm",
+          "color": "green"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "front"
+        }
+      ]
+    }
+  },
+  {
+    "sentence": "The object to the left of the yellow cylinder.",
+    "true_ranks": [
+      1,
+      8
+    ],
+    "mentions": {
+      "objects": [
+        {
+          "id": 1,
+          "label": "object",
+          "type": "target"
+        },
+        {
+          "id": 2,
+          "label": "cylinder",
+          "type": "lm",
+          "color": "yellow"
+        }
+      ],
+      "relations": [
+        {
+          "o1": 1,
+          "o2": 2,
+          "label": "left"
+        }
+      ]
+    }
+  }
+]
