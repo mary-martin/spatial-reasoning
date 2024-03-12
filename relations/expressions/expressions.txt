@@ -1,0 +1,5 @@
+Pick up the object to the left of the sphere and behind the brown objects
+Pick up the object between the gray cube and the sphere
+Pick up the object that is to the right of the object that is in front of the gray cube
+Pick up the object behind the gray cube and in front of the green object
+Pick up the object to the left of the sphere

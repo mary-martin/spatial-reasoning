@@ -54,7 +54,6 @@ class SpatialPredictor(object):
         # candidate graph created to store candidate groundings
         self.candidate_graph = nx.DiGraph()
 
-        # Iterate through all object mentions
         # if an object mention has an associated color or label (shape)
         # find any object in the scene that has a matching descriptor
         for i, obj in enumerate(obj_mentions):
@@ -111,9 +110,7 @@ class SpatialPredictor(object):
 
         # Repeat grounding process until all relations are grounded
         while relations:
-            # init array of relations that cannot be grounded during the current iteration
             ug_relations = []
-            # loop through list of current relations that must be grounded
             for relation in relations:
                 # o1 and o2 refer to the start and goal node in a directed relation (from the expression)
                 o1 = relation["o1"]
