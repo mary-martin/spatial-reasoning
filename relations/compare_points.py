@@ -5,10 +5,12 @@ from collections import defaultdict
 
 class Location_Offsets(object):
     
-    def __init__(self, camera_pos, obj_positions, obj_labels):
+    def __init__(self, camera_pos, obj_positions, obj_labels, camera_rotation=None, camera_angle=None):
         self.camera_pos = camera_pos
         self.obj_positions = obj_positions
         self.obj_labels = obj_labels
+        self.camera_rotation = camera_rotation or [0.0, 0.0, 0.0]
+        self.camera_angle = camera_angle or 0.8575560450553894  # ~49 degrees
         self.offset_data = self.compare_all_points()
         # self.show_data_range()
         

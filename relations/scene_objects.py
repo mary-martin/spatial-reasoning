@@ -8,7 +8,7 @@ import os
 
 class Scene_Objects(object):
     
-    def __init__(self, obj_dict):
+    def __init__(self, obj_dict, camera_info_file=None):
     # Initialize the object with data from the provided dictionary
         
         # scene specfic data
@@ -22,12 +22,57 @@ class Scene_Objects(object):
         self.objects = obj_dict['objects']
         self.num_objects = len(self.objects)
         self.relationships = obj_dict['relationships']
-        self.camera_pos = [7.21, -6.83, 5.12]
+        # Load camera information from JSON file
+        self.camera_pos, self.camera_rotation, self.camera_angle = self.load_camera_info(camera_info_file)
         self.all_entities = self.collect_objects()
         # self.show_2d_graph()
         self.obj_offsets = self.get_object_offsets()
-        self.plot_points()
+        # self.plot_points()  # Commented out 3D plot display
         self.scene_relations = self.get_combined_relations()
+    
+    def load_camera_info(self, camera_info_file):
+        """Load camera information from JSON file or use defaults"""
+        default_camera_pos = [7.21, -6.83, 5.12]
+        default_camera_rotation = [0.0, 0.0, 0.0]
+        default_camera_angle = 0.8575560450553894  # ~49 degrees
+        
+        if camera_info_file is None:
+            # Try to find camera_info.json in common locations
+            possible_paths = [
+                "camera_info.json",
+                "../img_processing/camera_info.json",
+                "../../img_processing/camera_info.json",
+                "/home/mary/Code/spatial-reasoning/custom_clevr/img_processing/camera_info.json"
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    camera_info_file = path
+                    break
+        
+        if camera_info_file and os.path.exists(camera_info_file):
+            try:
+                with open(camera_info_file, 'r') as f:
+                    camera_info = json.load(f)
+                
+                camera_pos = camera_info.get('location', default_camera_pos)
+                camera_rotation = camera_info.get('rotation_euler', default_camera_rotation)
+                camera_angle = camera_info.get('angle', default_camera_angle)
+                
+                print(f"Loaded camera info from {camera_info_file}")
+                print(f"Camera position: {camera_pos}")
+                print(f"Camera rotation: {camera_rotation}")
+                print(f"Camera angle: {camera_angle}")
+                
+                return camera_pos, camera_rotation, camera_angle
+                
+            except Exception as e:
+                print(f"Warning: Could not load camera info from {camera_info_file}: {e}")
+                print("Using default camera parameters")
+                return default_camera_pos, default_camera_rotation, default_camera_angle
+        else:
+            print("Warning: No camera_info.json found, using default camera parameters")
+            return default_camera_pos, default_camera_rotation, default_camera_angle
     
     def collect_objects(self):
         # Create Entity objects from the provided object data
@@ -79,7 +124,7 @@ class Scene_Objects(object):
             self.all_labels.append(entity.shape + "_" + str(entity.idx))
             self.all_colors.append(entity.color)
         
-        return Location_Offsets(self.camera_pos, self.all_locations, self.all_labels)
+        return Location_Offsets(self.camera_pos, self.all_locations, self.all_labels, self.camera_rotation, self.camera_angle)
     
     def plot_points(self):
         # Create and display a 3D plot to visualize object positions
