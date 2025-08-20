@@ -288,13 +288,14 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
                     second_obj = scene_info.all_entities[second]
                     first_obj = scene_info.all_entities[first]
                     
-                    ax7.text(0.5, y_pos, f"  {combination[0]} → {combination[1]}", 
-                            fontsize=9, color='red', fontweight='bold')
-                    y_pos += 0.5
+                    # Include full node information in the path description
+                    path_text = f"  {second_obj.color} {second_obj.shape}({second}) --[{combination[0]}]--> {first_obj.color} {first_obj.shape}({first}) --[{combination[1]}]--> {end_obj.color} {end_obj.shape}({end_node})"
+                    ax7.text(0, y_pos, path_text, fontsize=8, color='red', fontweight='bold')
+                    y_pos += 0.8
                 
                 y_pos += 1
         
-        ax7.set_xlim(0, 2)
+        ax7.set_xlim(0, 8)
         ax7.set_ylim(-0.5, y_pos-0.5)
         ax7.set_xticks([])
         ax7.set_yticks([])
@@ -307,7 +308,7 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     ax8.set_title('Comparison: Outgoing vs Incoming Analysis', fontsize=12, fontweight='bold')
     ax8.axis('off')
     
-    # Create comparison text
+    # Create comparison text with examples
     comparison_text = f"""
     Outgoing Analysis (Previous):
     • 7 unique combinations
@@ -323,6 +324,11 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     • {total_unique} unique incoming combinations found
     • Incoming analysis reveals different patterns!
     • Different ending nodes have different unique incoming patterns
+    
+    Example Unique Incoming Paths:
+    • Node 0: brown sphere --[left]--> cyan cube --[left]--> blue cube
+    • Node 1: blue cube --[front]--> brown sphere --[front]--> green cylinder
+    • Node 2: gray cube --[behind]--> brown cylinder --[behind]--> cyan cube
     """
     
     ax8.text(0.05, 0.95, comparison_text, transform=ax8.transAxes, fontsize=10,
@@ -367,7 +373,7 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
 def create_focused_incoming_visualization(scene_info, G, node_unique_combinations, node_non_unique_combinations):
     """Create a focused visualization highlighting incoming findings"""
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
     
     # Plot 1: Incoming Unique Combinations
     ax1.set_title('Incoming Unique Combinations Found!', fontsize=14, fontweight='bold')
@@ -402,35 +408,35 @@ def create_focused_incoming_visualization(scene_info, G, node_unique_combination
              facecolor="lightgreen", alpha=0.8))
     ax1.axis('off')
     
-    # Plot 2: Unique Incoming Combinations per Node
-    ax2.set_title('Unique Incoming Combinations per Ending Node', fontsize=14, fontweight='bold')
+    # Plot 2: Unique Incoming Combinations per Node with Detailed Paths
+    ax2.set_title('Unique Incoming Combinations per Ending Node\n(with Full Node Information)', fontsize=14, fontweight='bold')
     
-    # Count unique combinations per node
-    unique_counts = []
-    node_labels = []
-    for end_node in sorted(node_unique_combinations.keys()):
-        unique_counts.append(len(node_unique_combinations[end_node]))
-        end_obj = scene_info.all_entities[end_node]
-        node_labels.append(f"{end_obj.color}\n{end_obj.shape}\n({end_node})")
-    
-    if unique_counts:
-        # Create horizontal bar chart
-        y_pos = range(len(unique_counts))
-        bars = ax2.barh(y_pos, unique_counts, color='lightgreen', alpha=0.7)
-        ax2.set_yticks(y_pos)
-        ax2.set_yticklabels(node_labels, fontsize=11, fontweight='bold')
-        ax2.set_xlabel('Number of Unique Incoming Combinations', fontsize=12, fontweight='bold')
-        ax2.invert_yaxis()
+    if node_unique_combinations:
+        # Create a detailed text display of unique paths
+        y_pos = 0.95
+        for end_node in sorted(node_unique_combinations.keys()):
+            if node_unique_combinations[end_node]:
+                end_obj = scene_info.all_entities[end_node]
+                ax2.text(0.02, y_pos, f"Ending Node {end_node} ({end_obj.color} {end_obj.shape}):", 
+                        fontsize=12, fontweight='bold', transform=ax2.transAxes)
+                y_pos -= 0.05
+                
+                for i, (combination, path) in enumerate(node_unique_combinations[end_node]):
+                    second, first = path[0], path[1]
+                    second_obj = scene_info.all_entities[second]
+                    first_obj = scene_info.all_entities[first]
+                    
+                    # Include full node information in the path description
+                    path_text = f"  {i+1}. {second_obj.color} {second_obj.shape}({second}) --[{combination[0]}]--> {first_obj.color} {first_obj.shape}({first}) --[{combination[1]}]--> {end_obj.color} {end_obj.shape}({end_node})"
+                    ax2.text(0.05, y_pos, path_text, fontsize=10, color='red', fontweight='bold', 
+                            transform=ax2.transAxes)
+                    y_pos -= 0.04
+                
+                y_pos -= 0.02
         
-        # Add value labels on bars
-        for bar, count in zip(bars, unique_counts):
-            ax2.text(bar.get_width() + 0.1, bar.get_y() + bar.get_height()/2, 
-                    str(count), ha='left', va='center', fontweight='bold', fontsize=11)
-        
-        # Add title annotation
-        ax2.text(0.5, 1.02, 'Each Ending Node Has Different Unique Incoming Patterns', 
-                transform=ax2.transAxes, ha='center', va='bottom', 
-                fontsize=14, fontweight='bold', color='green')
+        ax2.set_xlim(0, 1)
+        ax2.set_ylim(0, 1)
+        ax2.axis('off')
     else:
         ax2.text(0.5, 0.5, 'No unique\ncombinations', ha='center', va='center',
                 transform=ax2.transAxes, fontsize=14, fontweight='bold')
