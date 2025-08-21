@@ -5,5 +5,8 @@
     "python.formatting.provider": "none",
     "python.analysis.extraPaths": [
         "./amr-parsing"
+    ],
+    "cursorpyright.analysis.extraPaths": [
+        "./amr-parsing"
     ]
 }
