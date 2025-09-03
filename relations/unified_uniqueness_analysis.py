@@ -18,6 +18,18 @@ import numpy as np
 sys.path.append('.')
 from scene_objects import Scene_Objects
 
+def invert_relation(relation):
+    """Invert a spatial relation for incoming path analysis"""
+    relation_inversions = {
+        'left': 'right',
+        'right': 'left', 
+        'front': 'behind',
+        'behind': 'front',
+        'nearest': 'nearest',  # These don't have inverses
+        'farthest': 'farthest'
+    }
+    return relation_inversions.get(relation, relation)
+
 def load_scene_data(scene_file):
     """Load scene data from JSON file"""
     with open(scene_file, 'r') as f:
@@ -77,7 +89,7 @@ def analyze_1edge_uniqueness(scene_info, G):
     }
 
 def analyze_2edge_uniqueness(scene_info, G):
-    """Analyze 2-edge uniqueness (incoming path patterns)"""
+    """Analyze 2-edge uniqueness (incoming path patterns with inverted relations)"""
     
     node_unique_combinations = defaultdict(list)
     all_combinations = []
@@ -89,9 +101,9 @@ def analyze_2edge_uniqueness(scene_info, G):
             # Find all nodes that have edges to the predecessor
             for pred_pred in G.predecessors(pred):
                 if pred_pred != end_node:  # Avoid self-loops
-                    # Get the edge labels
-                    edge1_relations = G[pred_pred][pred]['relations']
-                    edge2_relations = G[pred][end_node]['relations']
+                    # Get the edge labels and INVERT them for incoming analysis
+                    edge1_relations = [invert_relation(rel) for rel in G[pred_pred][pred]['relations']]
+                    edge2_relations = [invert_relation(rel) for rel in G[pred][end_node]['relations']]
                     
                     # Create all combinations of individual relations
                     for rel1 in edge1_relations:
@@ -110,8 +122,9 @@ def analyze_2edge_uniqueness(scene_info, G):
         for pred in G.predecessors(end_node):
             for pred_pred in G.predecessors(pred):
                 if pred_pred != end_node:
-                    edge1_relations = G[pred_pred][pred]['relations']
-                    edge2_relations = G[pred][end_node]['relations']
+                    # INVERT relations for incoming analysis
+                    edge1_relations = [invert_relation(rel) for rel in G[pred_pred][pred]['relations']]
+                    edge2_relations = [invert_relation(rel) for rel in G[pred][end_node]['relations']]
                     
                     for rel1 in edge1_relations:
                         for rel2 in edge2_relations:

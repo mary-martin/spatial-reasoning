@@ -12,11 +12,24 @@ from itertools import product
 # Import the scene objects module
 from scene_objects import Scene_Objects
 
+def invert_relation(relation):
+    """Invert a spatial relation for incoming path analysis"""
+    relation_inversions = {
+        'left': 'right',
+        'right': 'left', 
+        'front': 'behind',
+        'behind': 'front',
+        'nearest': 'nearest',  # These don't have inverses
+        'farthest': 'farthest'
+    }
+    return relation_inversions.get(relation, relation)
+
 def find_incoming_unique_2edge_paths(scene_info):
     """Find unique 2-edge paths that are INCOMING to each node (not outgoing)"""
     
     print("=== Finding Incoming Unique 2-Edge Paths ===\n")
-    print("Now checking unique combinations for paths ENDING at each node\n")
+    print("Now checking unique combinations for paths ENDING at each node")
+    print("Using INVERTED relations for incoming path analysis\n")
     
     # Create the graph from scene relationships
     G = nx.DiGraph()
@@ -42,13 +55,15 @@ def find_incoming_unique_2edge_paths(scene_info):
         # Find all nodes that have edges TO this end_node
         for first_node in G.predecessors(end_node):
             # Get individual labels from first edge (first_node -> end_node)
-            first_edge_relations = G[first_node][end_node]['relations']
+            # For incoming paths, we need to INVERT these relations
+            first_edge_relations = [invert_relation(rel) for rel in G[first_node][end_node]['relations']]
             
             # Find all nodes that have edges TO the first_node
             for second_node in G.predecessors(first_node):
                 if second_node != end_node:  # Avoid cycles
                     # Get individual labels from second edge (second_node -> first_node)
-                    second_edge_relations = G[second_node][first_node]['relations']
+                    # For incoming paths, we need to INVERT these relations
+                    second_edge_relations = [invert_relation(rel) for rel in G[second_node][first_node]['relations']]
                     
                     # Create ALL combinations of individual labels
                     for second_label, first_label in product(second_edge_relations, first_edge_relations):
@@ -80,7 +95,7 @@ def find_incoming_unique_2edge_paths(scene_info):
     print(f"Found {total_non_unique} non-unique incoming combinations across all ending nodes")
     
     # Show unique combinations per node
-    print("\n--- UNIQUE Incoming Combinations PER ENDING NODE ---")
+    print("\n--- UNIQUE Incoming Combinations PER ENDING NODE (with INVERTED relations) ---")
     for end_node in sorted(node_unique_combinations.keys()):
         if node_unique_combinations[end_node]:
             end_obj = scene_info.all_entities[end_node]
@@ -315,7 +330,7 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     • 76 total paths
     • 9.2% unique paths
     
-    Incoming Analysis (Current):
+    Incoming Analysis (Current - CORRECTED):
     • {total_unique} unique combinations
     • {total_paths} total paths
     • {total_unique/total_paths*100:.1f}% unique paths
@@ -324,11 +339,12 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     • {total_unique} unique incoming combinations found
     • Incoming analysis reveals different patterns!
     • Different ending nodes have different unique incoming patterns
+    • Relations are now CORRECTLY inverted for incoming paths
     
-    Example Unique Incoming Paths:
-    • Node 0: brown sphere --[left]--> cyan cube --[left]--> blue cube
-    • Node 1: blue cube --[front]--> brown sphere --[front]--> green cylinder
-    • Node 2: gray cube --[behind]--> brown cylinder --[behind]--> cyan cube
+    Example Unique Incoming Paths (with inverted relations):
+    • Node 0: brown sphere --[right]--> cyan cube --[right]--> blue cube
+    • Node 1: blue cube --[behind]--> brown sphere --[behind]--> green cylinder
+    • Node 2: gray cube --[front]--> brown cylinder --[front]--> cyan cube
     """
     
     ax8.text(0.05, 0.95, comparison_text, transform=ax8.transAxes, fontsize=10,
@@ -341,7 +357,7 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     
     # Create summary text
     summary_text = f"""
-    Incoming Graph Statistics:
+    Incoming Graph Statistics (CORRECTED):
     • Nodes: {G.number_of_nodes()}
     • Edges: {G.number_of_edges()}
     • Total unique incoming combinations: {total_unique}
@@ -351,15 +367,10 @@ def create_incoming_visualizations(scene_info, G, node_unique_combinations, node
     Nodes with Unique Incoming Combinations:
     • {len([n for n in node_unique_combinations if node_unique_combinations[n]])} nodes have unique incoming patterns
     
-    Individual Labels Found:
+    Individual Labels Found (Original):
     • {list(set([label for edge in G.edges() for label in G[edge[0]][edge[1]]['relations']]))}
     
-    Key Insight:
-    • Incoming analysis reveals unique spatial signatures!
-    • Different ending points have different unique incoming patterns
-    • Individual labels CAN provide uniqueness for incoming paths
     """
-    
     ax9.text(0.05, 0.95, summary_text, transform=ax9.transAxes, fontsize=10,
              verticalalignment='top', fontfamily='monospace', fontweight='bold')
     
