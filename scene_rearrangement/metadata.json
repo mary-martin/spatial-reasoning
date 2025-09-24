@@ -1,0 +1,129 @@
+{
+  "dataset": "CLEVR-Ref+-v1.0",
+  "types": {
+    "Object": null,
+    "ObjectSet": null,
+    "Integer": null,
+    "Bool": null,
+    "Shape": [
+      "cube", "sphere", "cylinder"
+    ],
+    "Color": [
+      "gray", "red", "blue", "green", "brown", "purple", "cyan", "yellow"
+    ],
+    "Relation": [
+      "left", "right", "behind", "front"
+    ],
+    "Size": [
+      "small", "large"
+    ],
+    "Material": [
+      "rubber", "metal"
+    ],
+    "Ordinal_direction": [
+      "from left", "from right", "from front"
+    ],
+    "Ordinal_number": [
+      "the first one of the","the second one of the","the third one of the","the fourth one of the","the fifth one of the","the sixth one of the","the seventh one of the","the eighth one of the","the nineth one of the"
+    ],
+    "Visible": [
+      "fully visible", "partially visible"
+    ]
+  },
+  "functions": [
+    {
+      "name": "scene",
+      "inputs": [],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter_color",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Color"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter_shape",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Shape"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter_material",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Material"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter_size",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Size"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "unique",
+      "inputs": ["ObjectSet"],
+      "output": "Object",
+      "terminal": false
+    },
+    {
+      "name": "relate",
+      "inputs": ["Object"],
+      "side_inputs": ["Relation"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Size", "Color", "Material", "Shape"],
+      "output": "ObjectSet",
+      "terminal": false,
+      "template_only": true
+    },
+    {
+      "name": "filter_unique",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Size", "Color", "Material", "Shape"],
+      "output": "Object",
+      "terminal": false,
+      "template_only": true
+    },
+    {
+      "name": "relate_filter",
+      "inputs": ["Object"],
+      "side_inputs": ["Relation", "Size", "Color", "Material", "Shape"],
+      "output": "ObjectSet",
+      "terminal": false,
+      "template_only": true
+    },
+    {
+      "name": "relate_filter_unique",
+      "inputs": ["Object"],
+      "side_inputs": ["Relation", "Size", "Color", "Material", "Shape"],
+      "output": "Object",
+      "terminal": false,
+      "template_only": true
+    },
+    {
+      "name": "place_relation",
+      "inputs": ["Object", "Object"],
+      "side_inputs": ["Relation"],
+      "output": "Bool",
+      "terminal": true
+    },
+    {
+      "name": "check_relation_exists",
+      "inputs": ["Object", "Object"],
+      "side_inputs": ["Relation"],
+      "output": "Bool",
+      "terminal": true
+    }
+  ]
+}
+

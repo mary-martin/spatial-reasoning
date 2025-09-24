@@ -1,0 +1,20 @@
+{
+  "sphere": ["ball"],
+  "cube": ["block"],
+  "cylinder": ["tube"],
+  "rubber": ["matte"],
+  "metal": ["shiny"],
+  "red": ["crimson"],
+  "blue": ["azure"],
+  "green": ["emerald"],
+  "yellow": ["golden"],
+  "purple": ["violet"],
+  "brown": ["tan"],
+  "gray": ["grey"],
+  "cyan": ["teal"],
+  "left": ["to the left of"],
+  "right": ["to the right of"],
+  "behind": ["behind"],
+  "front": ["in front of"]
+}
+

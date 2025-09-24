@@ -1,0 +1,103 @@
+[
+  {
+    "text": [
+      "Place the <C> <M> <S> to the <R> of the <C2> <M2> <S2>",
+      "Move the <C> <M> <S> to the <R> of the <C2> <M2> <S2>",
+      "Put the <C> <M> <S> to the <R> of the <C2> <M2> <S2>",
+      "Position the <C> <M> <S> to the <R> of the <C2> <M2> <S2>"
+    ],
+    "nodes": [
+      {
+        "inputs": [],
+        "type": "scene"
+      },
+      {
+        "side_inputs": ["<C>"],
+        "inputs": [0],
+        "type": "filter_color"
+      },
+      {
+        "side_inputs": ["<M>"],
+        "inputs": [1],
+        "type": "filter_material"
+      },
+      {
+        "side_inputs": ["<S>"],
+        "inputs": [2],
+        "type": "filter_shape"
+      },
+      {
+        "inputs": [3],
+        "type": "unique"
+      },
+      {
+        "inputs": [],
+        "type": "scene"
+      },
+      {
+        "side_inputs": ["<C2>"],
+        "inputs": [5],
+        "type": "filter_color"
+      },
+      {
+        "side_inputs": ["<M2>"],
+        "inputs": [6],
+        "type": "filter_material"
+      },
+      {
+        "side_inputs": ["<S2>"],
+        "inputs": [7],
+        "type": "filter_shape"
+      },
+      {
+        "inputs": [8],
+        "type": "unique"
+      },
+      {
+        "side_inputs": ["<R>"],
+        "inputs": [4, 9],
+        "type": "place_relation"
+      }
+    ],
+    "params": [
+      {
+        "type": "Color",
+        "name": "<C>"
+      },
+      {
+        "type": "Material",
+        "name": "<M>"
+      },
+      {
+        "type": "Shape",
+        "name": "<S>"
+      },
+      {
+        "type": "Color",
+        "name": "<C2>"
+      },
+      {
+        "type": "Material",
+        "name": "<M2>"
+      },
+      {
+        "type": "Shape",
+        "name": "<S2>"
+      },
+      {
+        "type": "Relation",
+        "name": "<R>"
+      }
+    ],
+    "constraints": [
+      {
+        "type": "NEQ",
+        "params": ["<C>", "<C2>"]
+      },
+      {
+        "type": "NEQ",
+        "params": ["<S>", "<S2>"]
+      }
+    ]
+  }
+]

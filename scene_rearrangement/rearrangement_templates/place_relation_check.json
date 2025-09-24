@@ -1,0 +1,89 @@
+[
+  {
+    "text": [
+      "Place the <C> <S> to the <R> of the <C2> <S2> (if not already <R>)",
+      "Move the <C> <S> to the <R> of the <C2> <S2> (if not already <R>)",
+      "Put the <C> <S> to the <R> of the <C2> <S2> (if not already <R>)"
+    ],
+    "nodes": [
+      {
+        "inputs": [],
+        "type": "scene"
+      },
+      {
+        "side_inputs": ["<C>"],
+        "inputs": [0],
+        "type": "filter_color"
+      },
+      {
+        "side_inputs": ["<S>"],
+        "inputs": [1],
+        "type": "filter_shape"
+      },
+      {
+        "inputs": [2],
+        "type": "unique"
+      },
+      {
+        "inputs": [],
+        "type": "scene"
+      },
+      {
+        "side_inputs": ["<C2>"],
+        "inputs": [4],
+        "type": "filter_color"
+      },
+      {
+        "side_inputs": ["<S2>"],
+        "inputs": [5],
+        "type": "filter_shape"
+      },
+      {
+        "inputs": [6],
+        "type": "unique"
+      },
+      {
+        "side_inputs": ["<R>"],
+        "inputs": [3, 7],
+        "type": "check_relation_exists"
+      },
+      {
+        "side_inputs": ["<R>"],
+        "inputs": [3, 7],
+        "type": "place_relation"
+      }
+    ],
+    "params": [
+      {
+        "type": "Color",
+        "name": "<C>"
+      },
+      {
+        "type": "Shape",
+        "name": "<S>"
+      },
+      {
+        "type": "Color",
+        "name": "<C2>"
+      },
+      {
+        "type": "Shape",
+        "name": "<S2>"
+      },
+      {
+        "type": "Relation",
+        "name": "<R>"
+      }
+    ],
+    "constraints": [
+      {
+        "type": "NEQ",
+        "params": ["<C>", "<C2>"]
+      },
+      {
+        "type": "NEQ",
+        "params": ["<S>", "<S2>"]
+      }
+    ]
+  }
+]
