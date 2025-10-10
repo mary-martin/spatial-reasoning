@@ -1,0 +1,29 @@
+{
+  "llm_diversification": {
+    "enabled": true,
+    "providers": {
+      "openai": {
+        "enabled": true,
+        "api_key": "your-openai-api-key-here",
+        "models": [
+          "gpt-3.5-turbo"
+        ]
+      },
+      "anthropic": {
+        "enabled": false,
+        "api_key": "your-anthropic-api-key-here",
+        "models": [
+          "claude-3-opus-20240229"
+        ]
+      }
+    },
+    "settings": {
+      "max_variations": 2,
+      "temperature": 0.8,
+      "max_pairs_per_run": 50,
+      "delay_between_requests": 1.0
+    }
+  }
+}
+
+

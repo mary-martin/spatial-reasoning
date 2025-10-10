@@ -216,6 +216,7 @@ class Entity(object):
         self.shape = self.object_info['shape']
         self.size = self.object_info['size']
         self.color = self.object_info['color']
+        self.material = self.object_info.get('material', 'unknown')  # Add material attribute
         self.front = self.relations['front']
         self.behind = self.relations['behind']
         self.left = self.relations['left']
