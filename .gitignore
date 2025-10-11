@@ -2,4 +2,6 @@ custom_clever/output/*
 custom_clevr/llm_diversification_config.json
 custom_clevr/clevr_data.zip
 figures/*
-custom_clever/docs/*
+custom_clevr/docs/*
+custom_clevr/output/*
+custom_clevr/clevr_data.zip
